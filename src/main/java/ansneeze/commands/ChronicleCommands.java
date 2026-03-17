@@ -3,7 +3,6 @@ package ansneeze.commands;
 import ansneeze.Chronicle;
 import ansneeze.utilidades.mensaje;
 import ansneeze.utilidades.MinasConfig;
-
 import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -54,13 +53,14 @@ public class ChronicleCommands implements CommandExecutor {
             return true;
         }
 
+        // /crn mine set <materials> <nombre>
         if (args.length >= 4 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("set")) {
-            String ids = args[2];
+            String materials = args[2];
             String nombre = args[3].toLowerCase();
 
             Location[] sel = seleccionJugador.get(uuid);
             if (sel == null || sel[0] == null || sel[1] == null) {
-                player.sendMessage(mensaje.getColoredMessage("&cDebes seleccionar dos puntos primero con &e/crn mine place 1 &cy &e/crn mine place 2"));
+                player.sendMessage(mensaje.getColoredMessage("&cDebes seleccionar dos puntos antes con &e/crn mine place 1 &cy &e/crn mine place 2"));
                 return true;
             }
 
@@ -73,18 +73,22 @@ public class ChronicleCommands implements CommandExecutor {
             cfg.set(path + ".x2", sel[1].getBlockX());
             cfg.set(path + ".y2", sel[1].getBlockY());
             cfg.set(path + ".z2", sel[1].getBlockZ());
-            cfg.set(path + ".ids", ids);
+            cfg.set(path + ".materials", materials);
             cfg.set(path + ".reset", 180);
             minasConfig.save();
 
-            generarMina(cfg, nombre);
-            iniciarResetAutomatico(nombre);
+            boolean resultado = generarMina(cfg, nombre, player);
+            if (resultado) {
+                iniciarResetAutomatico(nombre);
+                player.sendMessage(mensaje.getColoredMessage("&aMina '" + nombre + "' creada correctamente."));
+                seleccionJugador.remove(uuid);
+            }
+            // Si no se creó, el método ya muestra mensaje de error.
 
-            player.sendMessage(mensaje.getColoredMessage("&aMina '" + nombre + "' creada correctamente."));
-            seleccionJugador.remove(uuid);
             return true;
         }
 
+        // /crn mine reset <nombre>
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("reset")) {
             String nombre = args[2].toLowerCase();
 
@@ -94,57 +98,89 @@ public class ChronicleCommands implements CommandExecutor {
                 return true;
             }
 
-            generarMina(cfg, nombre);
-            player.sendMessage(mensaje.getColoredMessage("&aMina '" + nombre + "' regenerada correctamente."));
+            boolean resultado = generarMina(cfg, nombre, player);
+            if (resultado) {
+                player.sendMessage(mensaje.getColoredMessage("&aMina '" + nombre + "' regenerada correctamente."));
+            }
+            // Si falla, el método muestra mensaje.
             return true;
         }
 
+        // /crn mine help
         if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("help")) {
             player.sendMessage(mensaje.getColoredMessage("&6Comandos de mina:"));
             player.sendMessage(mensaje.getColoredMessage("&e/crn mine place 1 &7- Seleccionar primer punto"));
             player.sendMessage(mensaje.getColoredMessage("&e/crn mine place 2 &7- Seleccionar segundo punto"));
-            player.sendMessage(mensaje.getColoredMessage("&e/crn mine set <ids> <nombre> &7- Crea la mina"));
+            player.sendMessage(mensaje.getColoredMessage("&e/crn mine set MATERIAL1,MATERIAL2,NOMBRE &7- Crea la mina (ejemplo: &b/crn mine set GOLD_ORE,STONE minaprueba)"));
             player.sendMessage(mensaje.getColoredMessage("&e/crn mine reset <nombre> &7- Resetea manualmente la mina"));
             return true;
         }
 
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("mine"))) {
             player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&ePor favor, usa &a/crn mine help &epara más información."));
+                    Chronicle.prefix + "&ePor favor, usa &a/chronicle mine help &epara más información."));
             return true;
         }
 
-        return false;
+        // Si llega aquí, comando no reconocido, mostrar ayuda
+        player.sendMessage(mensaje.getColoredMessage(
+                Chronicle.prefix + "&ePor favor, usa &a/chronicle mine help &epara más información."));
+        return true;
     }
 
-    private void generarMina(FileConfiguration cfg, String nombre) {
+    // Devuelve true si la mina se creó correctamente, false si hay error
+    private boolean generarMina(FileConfiguration cfg, String nombre, Player jugador) {
         String path = "minas." + nombre;
         World world = Bukkit.getWorld(cfg.getString(path + ".world"));
-        if (world == null) return;
+        if (world == null) {
+            if (jugador != null) jugador.sendMessage(mensaje.getColoredMessage("&cEl mundo de la mina no existe."));
+            return false;
+        }
         try {
             int x1 = cfg.getInt(path + ".x1"), y1 = cfg.getInt(path + ".y1"), z1 = cfg.getInt(path + ".z1");
             int x2 = cfg.getInt(path + ".x2"), y2 = cfg.getInt(path + ".y2"), z2 = cfg.getInt(path + ".z2");
-            String[] materialIds = cfg.getString(path + ".ids").split(",");
+            String[] materialNames = cfg.getString(path + ".materials").split(",");
             List<Material> materiales = new ArrayList<>();
-            for (String id : materialIds) {
-                Material mat = Material.getMaterial(String.valueOf(Integer.parseInt(id.trim())));
+            List<String> materialesInvalidos = new ArrayList<>();
+            for (String matName : materialNames) {
+                Material mat = Material.matchMaterial(matName.trim());
                 if (mat != null) materiales.add(mat);
+                else materialesInvalidos.add(matName.trim());
             }
-            if (materiales.isEmpty()) return;
+            if (materiales.isEmpty()) {
+                if (jugador != null)
+                    jugador.sendMessage(mensaje.getColoredMessage("&cNo se encontraron materiales válidos. Materiales inválidos: " + String.join(", ", materialesInvalidos)));
+                return false;
+            }
+            if (!materialesInvalidos.isEmpty() && jugador != null) {
+                jugador.sendMessage(mensaje.getColoredMessage("&cLos siguientes materiales no existen: " + String.join(", ", materialesInvalidos)));
+            }
 
-            Random rnd = new Random();
             int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
             int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
             int minZ = Math.min(z1, z2), maxZ = Math.max(z1, z2);
 
+            if (maxX - minX < 0 || maxY - minY < 0 || maxZ - minZ < 0) {
+                jugador.sendMessage(mensaje.getColoredMessage("&cLa región seleccionada es inválida."));
+                return false;
+            }
+
+            Random rnd = new Random();
+            int bloquesModificados = 0;
             for (int x = minX; x <= maxX; x++)
                 for (int y = minY; y <= maxY; y++)
                     for (int z = minZ; z <= maxZ; z++) {
                         Material mat = materiales.get(rnd.nextInt(materiales.size()));
                         world.getBlockAt(x, y, z).setType(mat);
+                        bloquesModificados++;
                     }
+            if (jugador != null)
+                jugador.sendMessage(mensaje.getColoredMessage("&7Minando " + bloquesModificados + " bloques con materiales configurados."));
+            return true;
         } catch (Exception ex) {
+            if (jugador != null) jugador.sendMessage(mensaje.getColoredMessage("&c¡Error al generar la mina!"));
             ex.printStackTrace();
+            return false;
         }
     }
 
@@ -156,7 +192,7 @@ public class ChronicleCommands implements CommandExecutor {
         BukkitRunnable tarea = new BukkitRunnable() {
             @Override
             public void run() {
-                generarMina(minasConfig.getConfig(), minanombre);
+                generarMina(minasConfig.getConfig(), minanombre, null);
                 Bukkit.broadcastMessage(mensaje.getColoredMessage("&bLa mina '" + minanombre + "' ha sido regenerada automáticamente."));
             }
         };
@@ -172,4 +208,4 @@ public class ChronicleCommands implements CommandExecutor {
             iniciarResetAutomatico(mina);
         }
     }
-}
+}}
