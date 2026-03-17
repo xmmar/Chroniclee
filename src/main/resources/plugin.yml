@@ -1,0 +1,11 @@
+main: ansneeze.Chronicle
+version: 1.0.0
+name: Chronicle
+author: ansneeze
+api-version: 1.20
+
+commands:
+  chronicle:
+    description: Comando principal del plugin Chronicle (usa /chronicle o /crn)
+    usage: /chronicle
+    aliases: [crn]
