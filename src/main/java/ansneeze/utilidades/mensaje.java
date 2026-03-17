@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class mensaje {
-    // Soporte HEX para Spigot >=1.16
     public static String getColoredMessage(String msg){
         Pattern hexPattern = Pattern.compile("&#([A-Fa-f0-9]{6})");
         Matcher matcher = hexPattern.matcher(msg);
