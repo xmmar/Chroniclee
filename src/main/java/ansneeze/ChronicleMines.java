@@ -1,12 +1,11 @@
 package ansneeze;
 
-import ansneeze.commands.ChronicleCommands;
+import ansneeze.commands.ChronicleMineCommands;
 import ansneeze.utilidades.MinasConfig;
 import ansneeze.commands.MinaPrefixListener;
 import ansneeze.utilidades.mensaje;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChronicleMines extends JavaPlugin {
@@ -18,7 +17,7 @@ public class ChronicleMines extends JavaPlugin {
     public void onEnable() {
         minasConfig = new MinasConfig(this);
         minasConfig.backup();
-        ChronicleCommands comandos = new ChronicleCommands(this, minasConfig);
+        ChronicleMineCommands comandos = new ChronicleMineCommands(this, minasConfig);
         getCommand("chroniclemines").setExecutor(comandos);
         getCommand("crnmines").setExecutor(comandos);
         comandos.iniciarTodosLosResets();

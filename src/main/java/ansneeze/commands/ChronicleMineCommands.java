@@ -13,14 +13,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-public class ChronicleCommands implements CommandExecutor {
+public class ChronicleMineCommands implements CommandExecutor {
 
     private final Map<UUID, Location[]> seleccionJugador = new HashMap<>();
     private final Plugin plugin;
     private final MinasConfig minasConfig;
     private final Map<String, BukkitRunnable> tareasReset = new HashMap<>();
 
-    public ChronicleCommands(Plugin plugin, MinasConfig minasConfig) {
+    public ChronicleMineCommands(Plugin plugin, MinasConfig minasConfig) {
         this.plugin = plugin;
         this.minasConfig = minasConfig;
     }
