@@ -15,16 +15,19 @@ import java.util.*;
 public class ChronicleMinesMenu {
     private static final String GUI_NAME = mensaje.getColoredMessage("&#D8F454&l&oChronicle &#DC7685&l&oMines");
 
-    // Cambiado el tipo aquí
     public static void open(Player player, MinasMenuConfig minasMenuConfig) {
         FileConfiguration cfg = minasMenuConfig.getConfig();
 
-        // Minas predefinidas o creadas
+        // CORRECCIÓN para evitar NullPointerException
+        if (!cfg.contains("minas") || cfg.getConfigurationSection("minas") == null) {
+            player.sendMessage(mensaje.getColoredMessage("&cNo hay minas menú configuradas aún."));
+            return;
+        }
+
         Set<String> minas = cfg.getConfigurationSection("minas").getKeys(false);
         int invSize = 27;
         Inventory inv = Bukkit.createInventory(null, invSize, GUI_NAME);
 
-        // Coloca cada mina en slots bonitos (10,12,14)
         int[] slots = {10, 12, 14, 16};
         int idx = 0;
 
@@ -43,7 +46,6 @@ public class ChronicleMinesMenu {
             idx++;
         }
 
-        // Info personal: papel
         ItemStack paper = new ItemStack(Material.PAPER);
         ItemMeta infoMeta = paper.getItemMeta();
         infoMeta.setDisplayName(mensaje.getColoredMessage("&dTus datos:"));
@@ -56,7 +58,6 @@ public class ChronicleMinesMenu {
         paper.setItemMeta(infoMeta);
         inv.setItem(22, paper);
 
-        // Libro información invictus, slot 18
         ItemStack book = new ItemStack(Material.BOOK);
         ItemMeta bookMeta = book.getItemMeta();
         bookMeta.setDisplayName(mensaje.getColoredMessage("&#F49554&l&oI&#EF994D&l&on&#E99C46&l&ov&#E4A03E&l&oi&#DEA337&l&oc&#E5B82A&l&ot&#EBCE1D&l&ou&#F2E310&l&os &bInformacion"));
@@ -83,9 +84,10 @@ public class ChronicleMinesMenu {
         if (item == null || !item.hasItemMeta()) return;
 
         String display = item.getItemMeta().getDisplayName();
-
-        // Si click en mina, hace teleport a la posición setead en minasmenus.yml
         FileConfiguration cfg = minasMenuConfig.getConfig();
+
+        if (!cfg.contains("minas") || cfg.getConfigurationSection("minas") == null) return;
+
         for (String mina : cfg.getConfigurationSection("minas").getKeys(false)) {
             String prefix = mensaje.getColoredMessage(cfg.getString("minas." + mina + ".prefix"));
             if (display.equals(prefix)) {
@@ -94,8 +96,8 @@ public class ChronicleMinesMenu {
                 double x = cfg.getDouble(path + ".x");
                 double y = cfg.getDouble(path + ".y");
                 double z = cfg.getDouble(path + ".z");
-                float yaw = (float)cfg.getDouble(path + ".yaw");
-                float pitch = (float)cfg.getDouble(path + ".pitch");
+                float yaw = (float) cfg.getDouble(path + ".yaw");
+                float pitch = (float) cfg.getDouble(path + ".pitch");
                 if (world != null) player.teleport(new Location(world, x, y, z, yaw, pitch));
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&aTeleportado a la mina &f" + mina + "&a!"));
                 break;

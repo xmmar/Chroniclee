@@ -1,6 +1,5 @@
 package ansneeze;
 
-import ansneeze.commands.ChronicleMineCommands;
 import ansneeze.commands.ChronicleMinesMenu;
 import ansneeze.commands.MinaPrefixListener;
 import ansneeze.utilidades.MinasConfig;
@@ -12,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import ansneeze.commands.ChronicleMineCommands;
 
 public class ChronicleMines extends JavaPlugin {
     public static String prefix = "&#D8F454&l&oChronicle &#DC7685&l&oMines ";
@@ -21,22 +21,19 @@ public class ChronicleMines extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Inicializar configs
         minasConfig = new MinasConfig(this);
         minasMenuConfig = new MinasMenuConfig(this);
         minasConfig.backup();
 
-        // Comandos principales
-        ChronicleMineCommands comandos = new ChronicleMineCommands(this, minasConfig, minasMenuConfig);
+        ChronicleMineCommands comandos = new ChronicleMineCommands(this, minasConfig, minasMenuConfig); // <--- SE PASAN AMBAS CONFIGS
         getCommand("chroniclemines").setExecutor(comandos);
         getCommand("crnmines").setExecutor(comandos);
         comandos.iniciarTodosLosResets();
 
-        // LuckPerms y listeners
         LuckPerms luckPerms = getServer().getServicesManager().load(LuckPerms.class);
         getServer().getPluginManager().registerEvents(new MinaPrefixListener(minasConfig, luckPerms), this);
 
-        // Listener para GUI menú
+        // Listener para menú GUI
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onInventoryClick(InventoryClickEvent event) {
@@ -44,7 +41,6 @@ public class ChronicleMines extends JavaPlugin {
             }
         }, this);
 
-        // Mensaje de consola
         Bukkit.getConsoleSender().sendMessage(
                 mensaje.getColoredMessage(prefix + " &aEl plugin se cargó correctamente."));
     }
