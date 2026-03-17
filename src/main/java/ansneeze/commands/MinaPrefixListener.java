@@ -33,7 +33,7 @@ public class MinaPrefixListener implements Listener {
         // Elimina todos los prefijos personalizados
         List<Node> nodosAEliminar = new ArrayList<>();
         for (Node node : user.getNodes()) {
-            if (node instanceof PrefixNode && node.getMeta().contains("&7[")) {
+            if (node instanceof PrefixNode && node.getKey().contains("&7[")) {
                 nodosAEliminar.add(node);
             }
         }
