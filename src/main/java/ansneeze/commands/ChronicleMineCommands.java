@@ -35,10 +35,30 @@ public class ChronicleMineCommands implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
+        // HELP
+        if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
+            player.sendMessage(mensaje.getColoredMessage(
+                    ChronicleMines.separator + "\n" +
+                            ChronicleMines.prefix + " &7Comandos:\n" +
+                            "&e/crnmines help &c- Muestra esta ayuda\n" +
+                            "&e/crnmines list &c- Lista todas las minas\n" +
+                            "&e/crnmines set &8(&bMateriales&8) &8(&bNombre&8) &c- Crear mina\n" +
+                            "&e/crnmines place 1 &c- Punto inicial\n" +
+                            "&e/crnmines place 2 &c- Punto final\n" +
+                            "&e/crnmines delete &8(&bNombre&8) &c- Eliminar mina\n" +
+                            "&e/crnmines tp &8(&bNombre&8) &c- TP por encima\n" +
+                            "&e/crnmines reset &8(&bNombre&8) &c- Reset mina\n" +
+                            "&e/crnmines menu &c- Menu de las minas actuales.\n" +
+                            "&e/crnmines reload &c- Recargar plugin\n" +
+                            ChronicleMines.separator
+            ));
+            return true;
+        }
+
         // Selecciona puntos
-        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("place")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("place")) {
             int pos;
-            try { pos = Integer.parseInt(args[2]); }
+            try { pos = Integer.parseInt(args[1]); }
             catch (NumberFormatException e) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cPosición inválida. Usa 1 o 2."));
                 return true;
@@ -55,13 +75,13 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // Crear mina
-        if (args.length >= 4 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("set")) {
-            String materials = args[2];
-            String nombre = args[3].toLowerCase();
+        if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
+            String materials = args[1];
+            String nombre = args[2].toLowerCase();
 
             Location[] sel = seleccionJugador.get(uuid);
             if (sel == null || sel[0] == null || sel[1] == null) {
-                player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cSelecciona dos puntos primero (&e/crn mine place 1&c y &e/crn mine place 2&c)."));
+                player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cSelecciona dos puntos primero (&e/crnmines place 1&c y &e/crnmines place 2&c)."));
                 return true;
             }
 
@@ -89,18 +109,17 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // Eliminar mina (ahora elimina los bloques en el mundo)
-        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("delete")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("delete")) {
             if (!player.hasPermission("chronicle.delete")) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo tienes permiso para eliminar minas."));
                 return true;
             }
-            String nombre = args[2].toLowerCase();
+            String nombre = args[1].toLowerCase();
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas." + nombre)) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo existe esa mina."));
                 return true;
             }
-            // Datos de la mina para limpiar bloques
             String path = "minas." + nombre;
             String worldName = cfg.getString(path + ".world");
             int x1 = cfg.getInt(path + ".x1");
@@ -128,8 +147,8 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // Reset manual
-        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("reset")) {
-            String nombre = args[2].toLowerCase();
+        if (args.length == 2 && args[0].equalsIgnoreCase("reset")) {
+            String nombre = args[1].toLowerCase();
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas." + nombre)) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo existe esa mina."));
@@ -145,12 +164,12 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // TP por encima de la mina
-        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("tp")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("tp")) {
             if (!player.hasPermission("chronicle.tp")) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo tienes permiso para teletransportarte a minas."));
                 return true;
             }
-            String nombre = args[2].toLowerCase();
+            String nombre = args[1].toLowerCase();
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas." + nombre)) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo existe esa mina."));
@@ -174,7 +193,7 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // Listar minas
-        if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("list")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas")) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo hay minas registradas.\n" + ChronicleMines.separator));
@@ -195,7 +214,7 @@ public class ChronicleMineCommands implements CommandExecutor {
         }
 
         // Listar minas eliminadas
-        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("list") && args[2].equalsIgnoreCase("delete")) {
+        if (args.length == 2 && args[0].equalsIgnoreCase("list") && args[1].equalsIgnoreCase("delete")) {
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas_eliminadas")) {
                 player.sendMessage(mensaje.getColoredMessage(ChronicleMines.prefix + "&cNo hay minas eliminadas registradas.\n" + ChronicleMines.separator));
@@ -228,32 +247,15 @@ public class ChronicleMineCommands implements CommandExecutor {
                     ChronicleMines.separator + "\n&6✶ &e&lChronicle &8&l↠ &aPlugin recargado. Archivos YML actualizados.\n" + ChronicleMines.separator));
             return true;
         }
-
-        // Ayuda con '/crn' y descripciones en rojo (&c)
-        if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("help")) {
-            player.sendMessage(mensaje.getColoredMessage(
-                    ChronicleMines.separator + "\n&6✶ &e&lChronicle &8&l↠ &6Comandos:\n"
-                            + "&e/crn mine place 1 &c- Punto inicial\n"
-                            + "&e/crn mine place 2 &c- Punto final\n"
-                            + "&e/crn mine set &bMATERIALES NOMBRE &c- Crear mina\n"
-                            + "&e/crn mine list &c- Ver todas las minas\n"
-                            + "&e/crn mine list delete &c- Ver minas eliminadas\n"
-                            + "&e/crn mine delete &bNOMBRE &c- Eliminar mina\n"
-                            + "&e/crn mine tp &bNOMBRE &c- TP por encima\n"
-                            + "&e/crn mine reset &bNOMBRE &c- Reset mina\n"
-                            + "&e/crn reload &c- Recargar plugin\n"
-                            + ChronicleMines.separator));
+        // Menú GUI
+        if (args.length == 1 && args[0].equalsIgnoreCase("menu")) {
+            ChronicleMinesMenu.open(player, minasConfig);
             return true;
         }
 
-        if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("mine"))) {
-            player.sendMessage(mensaje.getColoredMessage(
-                    ChronicleMines.prefix + "&ePor favor, usa &a/crn mine help &epara más información."));
-            return true;
-        }
-
+        // Mensaje por defecto si no coincide ningún comando
         player.sendMessage(mensaje.getColoredMessage(
-                ChronicleMines.prefix + "&ePor favor, usa &a/crn mine help &epara más información."));
+                ChronicleMines.prefix + "&ePor favor, usa &a/crnmines help &epara más información."));
         return true;
     }
 

@@ -1,0 +1,31 @@
+minas:
+  principiante:
+    display: DIAMOND_PICKAXE
+    prefix: "&aPrincipiante"
+    desc: "&aEjemplo &c(Todavía no están definidas, pero podés probarlas.)"
+    world: world
+    x: 0
+    y: 70
+    z: 0
+    pitch: 0
+    yaw: 0
+  intermedio:
+    display: IRON_PICKAXE
+    prefix: "&eIntermedio"
+    desc: "&aEjemplo &c(Todavía no están definidas, pero podés probarlas.)"
+    world: world
+    x: 10
+    y: 70
+    z: 0
+    pitch: 0
+    yaw: 0
+  avanzado:
+    display: NETHERITE_PICKAXE
+    prefix: "&cAvanzado"
+    desc: "&aEjemplo &c(Todavía no están definidas, pero podés probarlas.)"
+    world: world
+    x: 20
+    y: 70
+    z: 0
+    pitch: 0
+    yaw: 0
