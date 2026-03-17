@@ -1,4 +1,4 @@
-package ansneeze.listeners;
+package ansneeze.commands;
 
 import ansneeze.utilidades.MinasConfig;
 import net.luckperms.api.LuckPerms;
@@ -30,19 +30,19 @@ public class MinaPrefixListener implements Listener {
         User user = luckPerms.getUserManager().getUser(player.getUniqueId());
         if (user == null) return;
 
-        // Elimina todos los prefijos personalizados del plugin ([X])
+        // Elimina todos los prefijos personalizados
         List<Node> nodosAEliminar = new ArrayList<>();
-        for (Node node : user.data()) {
-            if (node instanceof PrefixNode && ((PrefixNode) node).getPrefix().contains("&7[")) {
+        for (Node node : user.getNodes()) {
+            if (node instanceof PrefixNode && node.getMeta().contains("&7[")) {
                 nodosAEliminar.add(node);
             }
         }
         nodosAEliminar.forEach(node -> user.data().remove(node));
 
-        // Asigna prefix si está en una mina
+        // Asigna prefix si está en la mina
         if (minaActual != null) {
             String letra = minaActual.substring(0, 1).toUpperCase();
-            PrefixNode prefixNode = PrefixNode.builder("&7[" + letra + "] ").priority(101).build();
+            PrefixNode prefixNode = PrefixNode.builder("&7[" + letra + "] ", 101).build();
             user.data().add(prefixNode);
         }
 
