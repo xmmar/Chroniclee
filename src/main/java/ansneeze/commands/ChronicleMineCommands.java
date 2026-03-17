@@ -1,6 +1,7 @@
 package ansneeze.commands;
 
 import ansneeze.ChronicleMines;
+import ansneeze.utilidades.MinasMenuConfig;
 import ansneeze.utilidades.mensaje;
 import ansneeze.utilidades.MinasConfig;
 
@@ -20,7 +21,7 @@ public class ChronicleMineCommands implements CommandExecutor {
     private final MinasConfig minasConfig;
     private final Map<String, BukkitRunnable> tareasReset = new HashMap<>();
 
-    public ChronicleMineCommands(Plugin plugin, MinasConfig minasConfig) {
+    public ChronicleMineCommands(Plugin plugin, MinasConfig minasConfig, MinasMenuConfig minasMenuConfig) {
         this.plugin = plugin;
         this.minasConfig = minasConfig;
     }

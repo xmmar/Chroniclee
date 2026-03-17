@@ -8,12 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 
 public class ChronicleMinesMenu {
     private static final String GUI_NAME = mensaje.getColoredMessage("&#D8F454&l&oChronicle &#DC7685&l&oMines");
 
+    // Cambiado el tipo aquí
     public static void open(Player player, MinasMenuConfig minasMenuConfig) {
         FileConfiguration cfg = minasMenuConfig.getConfig();
 
