@@ -19,25 +19,9 @@
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>sonatype-oss</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>luckperms</id>
-            <url>https://repo.luckperms.net/</url>
-        </repository>
     </repositories>
 
     <dependencies>
-        <!-- Spigot API -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- LuckPerms API -->
         <dependency>
             <groupId>net.luckperms</groupId>
@@ -46,12 +30,19 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Apache Commons IO (para el backup automático) -->
+        <!-- Spigot API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Apache Commons IO (opcional, para backup) -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
     </dependencies>
-
 </project>
