@@ -35,7 +35,7 @@ public class ChronicleCommands implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
-        // Selección de puntos tipo WorldEdit
+        // Selecciona puntos
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("place")) {
             int pos;
             try { pos = Integer.parseInt(args[2]); }
@@ -82,17 +82,13 @@ public class ChronicleCommands implements CommandExecutor {
             if (resultado) {
                 iniciarResetAutomatico(nombre);
                 player.sendMessage(mensaje.getColoredMessage(
-                        "\n&6✶ &e&lChronicle &8&l↠ &8[&eInvictus&8]&f"
-                                + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-                                + "\n&7¡La mina &e" + nombre + " &7ha sido &bcreada correctamente&7!"
-                                + "\n&f━━━━━━━━━━━━━━━━━━━━━━━\n"
-                ));
+                        Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &8Creada: &a" + nombre + "\n" + Chronicle.separator));
                 seleccionJugador.remove(uuid);
             }
             return true;
         }
 
-        // Eliminar mina (Permisos: chronicle.delete)
+        // Eliminar mina
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("delete")) {
             if (!player.hasPermission("chronicle.delete")) {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo tienes permiso para eliminar minas."));
@@ -104,36 +100,32 @@ public class ChronicleCommands implements CommandExecutor {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo existe esa mina."));
                 return true;
             }
+            cfg.set("minas_eliminadas." + nombre, cfg.getConfigurationSection("minas." + nombre));
             cfg.set("minas." + nombre, null);
             minasConfig.save();
             player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&aMina '" + nombre + "' eliminada correctamente."
-                            + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-            ));
+                    Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &cEliminada: &a" + nombre + "\n" + Chronicle.separator));
             return true;
         }
 
-        // Reseteo manual de mina
+        // Reset manual
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("reset")) {
             String nombre = args[2].toLowerCase();
-
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas." + nombre)) {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo existe esa mina."));
                 return true;
             }
-
             boolean resultado = generarMina(cfg, nombre, player);
             if (resultado) {
                 player.sendMessage(mensaje.getColoredMessage(
-                        Chronicle.prefix + "&b¡La mina '" + nombre + "' ha sido regenerada manualmente!"
-                                + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-                ));
+                        Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &b¡La mina '" + nombre + "' ha sido regenerada manualmente!\n" + Chronicle.separator));
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
             return true;
         }
 
-        // TP por encima de la mina (Permisos: chronicle.tp)
+        // TP por encima de la mina
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("tp")) {
             if (!player.hasPermission("chronicle.tp")) {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo tienes permiso para teletransportarte a minas."));
@@ -158,9 +150,7 @@ public class ChronicleCommands implements CommandExecutor {
             Location tp = new Location(world, midX + 0.5, topY, midZ + 0.5);
             player.teleport(tp);
             player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&aTeletransportado por encima de la mina '" + nombre + "'."
-                            + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-            ));
+                    Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &aTeletransportado por encima de la mina '&e" + nombre + "&a'.\n" + Chronicle.separator));
             return true;
         }
 
@@ -168,53 +158,72 @@ public class ChronicleCommands implements CommandExecutor {
         if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("list")) {
             FileConfiguration cfg = minasConfig.getConfig();
             if (!cfg.contains("minas")) {
-                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas registradas."));
+                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas registradas.\n" + Chronicle.separator));
                 return true;
             }
             Set<String> minas = cfg.getConfigurationSection("minas").getKeys(false);
             if (minas.isEmpty()) {
-                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas registradas."));
+                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas registradas.\n" + Chronicle.separator));
                 return true;
             }
-            StringBuilder sb = new StringBuilder(Chronicle.prefix + "&7Minas existentes:\n&f━━━━━━━━━━━━━━━━━━━━━━━\n");
+            StringBuilder sb = new StringBuilder(Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &7Minas existentes:\n");
             for (String mina : minas) {
                 sb.append("&e- ").append(mina).append("\n");
             }
-            sb.append("&f━━━━━━━━━━━━━━━━━━━━━━━");
+            sb.append(Chronicle.separator);
             player.sendMessage(mensaje.getColoredMessage(sb.toString()));
             return true;
         }
 
-        // /crn reload (Permisos: chronicle.reload)
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-            if (!player.hasPermission("chronicle.reload")) {
-                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo tienes permiso para recargar el plugin."));
+        // Listar minas eliminadas
+        if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("list") && args[2].equalsIgnoreCase("delete")) {
+            FileConfiguration cfg = minasConfig.getConfig();
+            if (!cfg.contains("minas_eliminadas")) {
+                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas eliminadas registradas.\n" + Chronicle.separator));
                 return true;
             }
-            minasConfig.reload();
-            iniciarTodosLosResets();
-            player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&aPlugin recargado. Archivos YML actualizados."
-                            + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-            ));
+            Set<String> minas = cfg.getConfigurationSection("minas_eliminadas").getKeys(false);
+            if (minas.isEmpty()) {
+                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo hay minas eliminadas registradas.\n" + Chronicle.separator));
+                return true;
+            }
+            StringBuilder sb = new StringBuilder(Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &7Minas eliminadas:\n");
+            for (String mina : minas) {
+                sb.append("&c- ").append(mina).append("\n");
+            }
+            sb.append(Chronicle.separator);
+            player.sendMessage(mensaje.getColoredMessage(sb.toString()));
             return true;
         }
 
-        // Ayuda
+        // Reload con auto-backup
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            if (!player.hasPermission("chronicle.reload")) {
+                player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo tienes permiso para recargar el plugin.\n" + Chronicle.separator));
+                return true;
+            }
+            minasConfig.backup();
+            minasConfig.reload();
+            iniciarTodosLosResets();
+            player.sendMessage(mensaje.getColoredMessage(
+                    Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &aPlugin recargado. Archivos YML actualizados.\n" + Chronicle.separator));
+            return true;
+        }
+
+        // Ayuda estilo profesional
         if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("help")) {
             player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&6Comandos de mina:\n"
-                            + "&f━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            + "&e/crn mine place 1 &7- Seleccionar primer punto\n"
-                            + "&e/crn mine place 2 &7- Seleccionar segundo punto\n"
-                            + "&e/crn mine set MATERIAL1,MATERIAL2 NOMBRE &7- Crea la mina (ej: &b/crn mine set GOLD_ORE,STONE minaprueba)\n"
-                            + "&e/crn mine reset <nombre> &7- Resetear mina\n"
-                            + "&e/crn mine list &7- Listar minas\n"
-                            + "&e/crn mine delete <nombre> &7- Eliminar mina\n"
-                            + "&e/crn mine tp <nombre> &7- Teleport por encima\n"
-                            + "&e/crn reload &7- Recargar plugin\n"
-                            + "&f━━━━━━━━━━━━━━━━━━━━━━━"
-            ));
+                    Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &6Comandos:\n"
+                            + "&e/prison mine place 1 &7- Punto inicial\n"
+                            + "&e/prison mine place 2 &7- Punto final\n"
+                            + "&e/prison mine set MATERIALES NOMBRE &7- Crear mina\n"
+                            + "&e/prison mine list &7- Ver todas las minas\n"
+                            + "&e/prison mine list delete &7- Ver minas eliminadas\n"
+                            + "&e/prison mine delete NOMBRE &7- Eliminar mina\n"
+                            + "&e/prison mine tp NOMBRE &7- TP por encima\n"
+                            + "&e/prison mine reset NOMBRE &7- Reset mina\n"
+                            + "&e/prison reload &7- Recargar plugin\n"
+                            + Chronicle.separator));
             return true;
         }
 
@@ -229,7 +238,7 @@ public class ChronicleCommands implements CommandExecutor {
         return true;
     }
 
-    // Generar/regenerar mina
+    // Genera o regenera una mina (igual que antes, pero con mensajes personalizados)
     private boolean generarMina(FileConfiguration cfg, String nombre, Player jugador) {
         String path = "minas." + nombre;
         World world = Bukkit.getWorld(cfg.getString(path + ".world"));
@@ -251,11 +260,11 @@ public class ChronicleCommands implements CommandExecutor {
             }
             if (materiales.isEmpty()) {
                 if (jugador != null)
-                    jugador.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo se encontraron materiales válidos. Materiales inválidos: " + String.join(", ", materialesInvalidos)));
+                    jugador.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cMateriales inválidos: " + String.join(", ", materialesInvalidos)));
                 return false;
             }
             if (!materialesInvalidos.isEmpty() && jugador != null) {
-                jugador.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cLos siguientes materiales no existen: " + String.join(", ", materialesInvalidos)));
+                jugador.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cMateriales desconocidos: " + String.join(", ", materialesInvalidos)));
             }
             int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
             int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
@@ -285,7 +294,7 @@ public class ChronicleCommands implements CommandExecutor {
         }
     }
 
-    // Reset auto
+    // Reset automático de mina, solo para quienes se encuentren dentro de la mina
     public void iniciarResetAutomatico(String minanombre) {
         if (tareasReset.containsKey(minanombre)) {
             tareasReset.get(minanombre).cancel();
@@ -295,16 +304,40 @@ public class ChronicleCommands implements CommandExecutor {
             @Override
             public void run() {
                 generarMina(minasConfig.getConfig(), minanombre, null);
-                Bukkit.broadcastMessage(mensaje.getColoredMessage(
-                        "\n&6✶ &e&lChronicle &8&l↠ &8[&eInvictus&8]"
-                                + "\n&f━━━━━━━━━━━━━━━━━━━━━━━"
-                                + "\n&b¡La mina &e" + minanombre + " &bha sido regenerada automáticamente!"
-                                + "\n&f━━━━━━━━━━━━━━━━━━━━━━━\n"
-                ));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    // Si el jugador está dentro de la mina, le muestra y suena
+                    String minaEn = getMinaEn(p, minanombre);
+                    if (minaEn != null && minaEn.equalsIgnoreCase(minanombre)) {
+                        p.sendMessage(mensaje.getColoredMessage(
+                                Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &b¡La mina &e" + minanombre + " &bha sido regenerada!\n" + Chronicle.separator));
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                    }
+                }
             }
         };
         tarea.runTaskTimer(plugin, interval * 20L, interval * 20L);
         tareasReset.put(minanombre, tarea);
+    }
+
+    // Auxiliar, para verificar si el jugador está en esa mina
+    private String getMinaEn(Player player, String minaNombre) {
+        FileConfiguration cfg = minasConfig.getConfig();
+        if (!cfg.contains("minas." + minaNombre)) return null;
+        String path = "minas." + minaNombre;
+        String worldName = cfg.getString(path + ".world");
+        int x1 = cfg.getInt(path + ".x1"), y1 = cfg.getInt(path + ".y1"), z1 = cfg.getInt(path + ".z1");
+        int x2 = cfg.getInt(path + ".x2"), y2 = cfg.getInt(path + ".y2"), z2 = cfg.getInt(path + ".z2");
+        if (!player.getWorld().getName().equals(worldName)) return null;
+        int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+        int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+        int minZ = Math.min(z1, z2), maxZ = Math.max(z1, z2);
+        int px = player.getLocation().getBlockX();
+        int py = player.getLocation().getBlockY();
+        int pz = player.getLocation().getBlockZ();
+        if (px >= minX && px <= maxX && py >= minY && py <= maxY && pz >= minZ && pz <= maxZ) {
+            return minaNombre;
+        }
+        return null;
     }
 
     public void iniciarTodosLosResets() {
