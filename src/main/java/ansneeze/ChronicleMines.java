@@ -1,14 +1,16 @@
 package ansneeze;
 
 import ansneeze.commands.ChronicleMineCommands;
-import ansneeze.utilidades.MinasConfig;
+import ansneeze.commands.ChronicleMineCommands;
 import ansneeze.commands.MinaPrefixListener;
+import ansneeze.utilidades.MinasConfig;
 import ansneeze.utilidades.mensaje;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ChronicleMines extends JavaPlugin {
+    // Prefix HEX estilizado (¡tal como pediste!)
     public static String prefix = "&#D8F454&l&oC&#D8E759&l&oh&#D9DB5E&l&or&#D9CE63&l&oo&#DAC267&l&on&#DAB56C&l&oi&#DAA871&l&oc&#DB9C76&l&ol&#DB8F7B&l&oe &#DC7685&l&oM&#DC698A&l&oi&#DD5D8E&l&on&#DD5093&l&oe&#DE4498&l&os ";
     public static String separator = "&8━━━━━━━━━━━━━━━━━━━━━━━━";
     public MinasConfig minasConfig;

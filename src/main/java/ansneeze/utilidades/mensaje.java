@@ -1,12 +1,24 @@
 package ansneeze.utilidades;
 
 import org.bukkit.ChatColor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class mensaje {
+    // Soporte HEX para Spigot >=1.16
     public static String getColoredMessage(String msg){
-        // Soporte para hex: reemplaza &#hex por §x§h§e§x...
-        msg = msg.replaceAll("&#([A-Fa-f0-9]{6})", "§x$1");
-        // El sistema de Spigot no reconoce la forma &l&o, entonces paso el resto normal.
-        return ChatColor.translateAlternateColorCodes('&', msg);
+        Pattern hexPattern = Pattern.compile("&#([A-Fa-f0-9]{6})");
+        Matcher matcher = hexPattern.matcher(msg);
+        StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            String color = matcher.group(1);
+            StringBuilder replacement = new StringBuilder("§x");
+            for (char c : color.toCharArray()) {
+                replacement.append('§').append(c);
+            }
+            matcher.appendReplacement(buffer, replacement.toString());
+        }
+        matcher.appendTail(buffer);
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 }
