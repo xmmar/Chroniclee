@@ -1,11 +1,11 @@
-main: ansneeze.Chronicle
+main: ansneeze.ChronicleMines
 version: 1.0.0
-name: Chronicle
+name: Chronicle Mines
 author: ansneeze
 api-version: 1.20
 
 commands:
-  chronicle:
-    description: Comando principal del plugin Chronicle (usa /chronicle o /crn)
-    usage: /chronicle
-    aliases: [crn]
+  chroniclemines:
+    description: Comando principal del plugin Chronicle Mines (usa /chroniclemines o /crnmines)
+    usage: /chroniclemines
+    aliases: [crnmines]
