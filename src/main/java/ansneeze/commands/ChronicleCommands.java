@@ -88,7 +88,7 @@ public class ChronicleCommands implements CommandExecutor {
             return true;
         }
 
-        // Eliminar mina
+        // Eliminar mina (ahora elimina los bloques en el mundo)
         if (args.length >= 3 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("delete")) {
             if (!player.hasPermission("chronicle.delete")) {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo tienes permiso para eliminar minas."));
@@ -99,6 +99,25 @@ public class ChronicleCommands implements CommandExecutor {
             if (!cfg.contains("minas." + nombre)) {
                 player.sendMessage(mensaje.getColoredMessage(Chronicle.prefix + "&cNo existe esa mina."));
                 return true;
+            }
+            // Datos de la mina para limpiar bloques
+            String path = "minas." + nombre;
+            String worldName = cfg.getString(path + ".world");
+            int x1 = cfg.getInt(path + ".x1");
+            int y1 = cfg.getInt(path + ".y1");
+            int z1 = cfg.getInt(path + ".z1");
+            int x2 = cfg.getInt(path + ".x2");
+            int y2 = cfg.getInt(path + ".y2");
+            int z2 = cfg.getInt(path + ".z2");
+            World world = Bukkit.getWorld(worldName);
+            if (world != null) {
+                int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+                int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+                int minZ = Math.min(z1, z2), maxZ = Math.max(z1, z2);
+                for (int x = minX; x <= maxX; x++)
+                    for (int y = minY; y <= maxY; y++)
+                        for (int z = minZ; z <= maxZ; z++)
+                            world.getBlockAt(x, y, z).setType(Material.AIR);
             }
             cfg.set("minas_eliminadas." + nombre, cfg.getConfigurationSection("minas." + nombre));
             cfg.set("minas." + nombre, null);
@@ -210,31 +229,31 @@ public class ChronicleCommands implements CommandExecutor {
             return true;
         }
 
-        // Ayuda estilo profesional
+        // Ayuda con '/crn' y descripciones en rojo (&c)
         if (args.length >= 2 && args[0].equalsIgnoreCase("mine") && args[1].equalsIgnoreCase("help")) {
             player.sendMessage(mensaje.getColoredMessage(
                     Chronicle.separator + "\n&6✶ &e&lChronicle &8&l↠ &6Comandos:\n"
-                            + "&e/prison mine place 1 &7- Punto inicial\n"
-                            + "&e/prison mine place 2 &7- Punto final\n"
-                            + "&e/prison mine set MATERIALES NOMBRE &7- Crear mina\n"
-                            + "&e/prison mine list &7- Ver todas las minas\n"
-                            + "&e/prison mine list delete &7- Ver minas eliminadas\n"
-                            + "&e/prison mine delete NOMBRE &7- Eliminar mina\n"
-                            + "&e/prison mine tp NOMBRE &7- TP por encima\n"
-                            + "&e/prison mine reset NOMBRE &7- Reset mina\n"
-                            + "&e/prison reload &7- Recargar plugin\n"
+                            + "&e/crn mine place 1 &c- Punto inicial\n"
+                            + "&e/crn mine place 2 &c- Punto final\n"
+                            + "&e/crn mine set &bMATERIALES NOMBRE &c- Crear mina\n"
+                            + "&e/crn mine list &c- Ver todas las minas\n"
+                            + "&e/crn mine list delete &c- Ver minas eliminadas\n"
+                            + "&e/crn mine delete &bNOMBRE &c- Eliminar mina\n"
+                            + "&e/crn mine tp &bNOMBRE &c- TP por encima\n"
+                            + "&e/crn mine reset &bNOMBRE &c- Reset mina\n"
+                            + "&e/crn reload &c- Recargar plugin\n"
                             + Chronicle.separator));
             return true;
         }
 
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("mine"))) {
             player.sendMessage(mensaje.getColoredMessage(
-                    Chronicle.prefix + "&ePor favor, usa &a/chronicle mine help &epara más información."));
+                    Chronicle.prefix + "&ePor favor, usa &a/crn mine help &epara más información."));
             return true;
         }
 
         player.sendMessage(mensaje.getColoredMessage(
-                Chronicle.prefix + "&ePor favor, usa &a/chronicle mine help &epara más información."));
+                Chronicle.prefix + "&ePor favor, usa &a/crn mine help &epara más información."));
         return true;
     }
 
