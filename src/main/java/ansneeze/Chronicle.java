@@ -2,7 +2,7 @@ package ansneeze;
 
 import ansneeze.commands.ChronicleCommands;
 import ansneeze.utilidades.MinasConfig;
-import ansneeze.listeners.MinaPrefixListener;
+import ansneeze.commands.MinaPrefixListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
