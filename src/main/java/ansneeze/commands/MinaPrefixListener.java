@@ -4,12 +4,15 @@ import ansneeze.utilidades.MinasConfig;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
+import net.luckperms.api.node.types.PrefixNode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinaPrefixListener implements Listener {
     private final MinasConfig minasConfig;
@@ -26,15 +29,24 @@ public class MinaPrefixListener implements Listener {
         String minaActual = getMinaEn(player);
         User user = luckPerms.getUserManager().getUser(player.getUniqueId());
         if (user == null) return;
+
+        // Elimina todos los prefijos personalizados del plugin ([X])
+        List<Node> nodosAEliminar = new ArrayList<>();
+        for (Node node : user.data()) {
+            if (node instanceof PrefixNode && ((PrefixNode) node).getPrefix().contains("&7[")) {
+                nodosAEliminar.add(node);
+            }
+        }
+        nodosAEliminar.forEach(node -> user.data().remove(node));
+
+        // Asigna prefix si está en una mina
         if (minaActual != null) {
             String letra = minaActual.substring(0, 1).toUpperCase();
-            user.data().removeIf(n -> n.getKey().startsWith("prefix.1.&7["));
-            user.data().add(Node.builder("prefix.1.&7[" + letra + "] ").build());
-            luckPerms.getUserManager().saveUser(user);
-        } else {
-            user.data().removeIf(n -> n.getKey().startsWith("prefix.1.&7["));
-            luckPerms.getUserManager().saveUser(user);
+            PrefixNode prefixNode = PrefixNode.builder("&7[" + letra + "] ").priority(101).build();
+            user.data().add(prefixNode);
         }
+
+        luckPerms.getUserManager().saveUser(user);
     }
 
     private String getMinaEn(Player player) {
