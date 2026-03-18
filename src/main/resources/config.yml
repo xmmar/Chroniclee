@@ -1,0 +1,35 @@
+gui_menu:
+  title: "&e&lChronicle &d&lMines"
+  size: 36
+  border:
+    pink: [27]
+    blue: [10, 11, 12, 13]
+    cyan: [22]
+  items:
+    book:
+      slot: 27
+      material: BOOK
+      name: "&#F49554&l&oI&#EF994D&l&oN&#E99C46&l&oV&#E4A03E&l&oI&#DEA337&l&oC&#E5A32A&l&oT&#EBA31D&l&oU&#F2A310&l&oS"
+      lore:
+        - "&eGithub: &f@invictuslat"
+        - "&eTiktok: &f@invictuslat"
+        - "&eYoutube: &f@invictuslat"
+        - "&eDiscord: &9&nhttps://invite.gg/invictusmc"
+        - "&d¿No nos seguís? &a¡Entra al discord y entérate de novedades!"
+    info:
+      slot: 22
+      material: PAPER
+      name: "&e&lInfo"
+      lore:
+        - "&7Nombre: &f%player%"
+        - "&7Exp: &f%exp%"
+        - "&7Mina actual: &b%mina%"
+    minas:
+      - slot: 10
+        path: mina_a
+      - slot: 11
+        path: mina_b
+      - slot: 12
+        path: mina_c
+      - slot: 13
+        path: mina_d

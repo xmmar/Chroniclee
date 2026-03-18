@@ -40,4 +40,8 @@ public class MinasMenuConfig {
             e.printStackTrace();
         }
     }
+
+    public void reload() {
+        config = YamlConfiguration.loadConfiguration(minasFile);
+    }
 }
